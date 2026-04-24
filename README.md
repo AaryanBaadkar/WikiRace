@@ -32,22 +32,42 @@ createdb wikirace_test
 
 > **Windows (pgAdmin):** Open pgAdmin → right-click *Databases* → *Create* → name it `wikirace`. Repeat for `wikirace_test`.
 
-## 3. Configure the server
+## 3. Find your local IP address
+
+The server and client must both use your machine's **local IPv4 address** (not `localhost`) so that Expo Go on your phone can reach the backend.
+
+**Windows:**
+```bash
+ipconfig
+```
+Look for **Wireless LAN adapter Wi-Fi → IPv4 Address** (e.g. `192.168.1.42`).
+
+**Mac/Linux:**
+```bash
+ifconfig | grep "inet "
+```
+Look for the address on your Wi-Fi interface (e.g. `192.168.1.42`), not `127.0.0.1`.
+
+> Keep this IP handy — you'll use it in both the server and client `.env` files.
+
+## 4. Configure the server
 
 ```bash
 cd server
 cp .env.example .env
 ```
 
-Edit `.env` and update these values:
+Edit `.env` and set these values:
 
 | Variable | What to set |
 |----------|-------------|
 | `DATABASE_URL` | Your PostgreSQL connection string (default: `postgresql://postgres:postgres@localhost:5432/wikirace`) |
-| `SERVER_HOST` | Your machine's local IP (run `ipconfig` on Windows, `ifconfig` on Mac/Linux) |
+| `SERVER_HOST` | Your local IP from step 3 (e.g. `192.168.1.42`) |
 | `JWT_SECRET` | Any random string (default works for dev) |
 
-## 4. Install and start the server
+> **Important:** `SERVER_HOST` must be your local IP, not `localhost` or `127.0.0.1`. The server binds to this address so that your phone can connect to it over Wi-Fi.
+
+## 5. Install and start the server
 
 ```bash
 npm install
@@ -58,7 +78,7 @@ The server will:
 - Run database migrations automatically
 - Start listening on `http://<SERVER_HOST>:3000`
 
-## 5. Seed the database (first time only)
+## 6. Seed the database (first time only)
 
 In a new terminal:
 
@@ -69,7 +89,7 @@ node src/db/seed.js
 
 This populates the article pool with 30 Wikipedia articles across various categories.
 
-## 6. Configure the client
+## 7. Configure the client
 
 ```bash
 cd ../client
@@ -78,12 +98,14 @@ cd ../client
 Create a `.env` file:
 
 ```
-EXPO_PUBLIC_API_URL=http://<YOUR_SERVER_HOST>:3000
+EXPO_PUBLIC_API_URL=http://<YOUR_LOCAL_IP>:3000
 ```
 
-Replace `<YOUR_SERVER_HOST>` with the same IP you used in the server's `SERVER_HOST`.
+Replace `<YOUR_LOCAL_IP>` with the same IP from step 3 (e.g. `http://192.168.1.42:3000`).
 
-## 7. Install and start the client
+> **Both must match:** The `SERVER_HOST` in `server/.env` and the IP in `EXPO_PUBLIC_API_URL` in `client/.env` must be the same address.
+
+## 8. Install and start the client
 
 ```bash
 npm install

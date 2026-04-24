@@ -8,4 +8,5 @@ export const MATCH_STEP      = 'match:step';
 export const MATCH_WON       = 'match:won';
 export const MATCH_ABANDON   = 'match:abandon';
 export const MATCH_ABANDONED = 'match:abandoned';
-export const MATCH_ERROR     = 'match:error';
+export const MATCH_ERROR           = 'match:error';
+export const MATCH_PLAYER_FINISHED = 'match:player_finished';

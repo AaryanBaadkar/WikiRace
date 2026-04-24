@@ -1,9 +1,9 @@
 // client/app/_layout.jsx
 import { useEffect } from 'react';
 import { Slot, useRouter, useSegments } from 'expo-router';
-import { useAuth } from '../hooks/useAuth';
+import { AuthProvider, useAuth } from '../hooks/useAuth';
 
-export default function RootLayout() {
+function AuthGuard() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const segments = useSegments();
@@ -16,4 +16,12 @@ export default function RootLayout() {
   }, [user, isLoading, segments]);
 
   return <Slot />;
+}
+
+export default function RootLayout() {
+  return (
+    <AuthProvider>
+      <AuthGuard />
+    </AuthProvider>
+  );
 }

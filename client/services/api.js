@@ -1,6 +1,7 @@
 // client/services/api.js
 import axios from 'axios';
 import { getAccessToken, getRefreshToken, setTokens, clearTokens } from './storage';
+import { connectSocket } from './socket';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
 
@@ -24,6 +25,7 @@ api.interceptors.response.use(
         const refreshToken = await getRefreshToken();
         const { data } = await axios.post(`${API_URL}/auth/refresh`, { refreshToken });
         await setTokens({ accessToken: data.accessToken, refreshToken });
+        connectSocket(data.accessToken);
         original.headers.Authorization = `Bearer ${data.accessToken}`;
         return api(original);
       } catch {
@@ -43,8 +45,13 @@ export const fetchArticle = (title, matchId) =>
   api.get(`/articles/${encodeURIComponent(title)}`, { params: { matchId } }).then(r => r.data);
 
 // Matches
-export const getMatches  = ()   => api.get('/matches').then(r => r.data);
-export const getMatch    = (id) => api.get(`/matches/${id}`).then(r => r.data);
+export const getMatches      = ()       => api.get('/matches').then(r => r.data);
+export const getMatch        = (id)     => api.get(`/matches/${id}`).then(r => r.data);
+export const createMatchHttp = (body)   => api.post('/matches', body).then(r => r.data);
+export const startBotRace    = (id)     => api.post(`/matches/${id}/start`).then(r => r.data);
+export const submitStep      = (id, article) => api.post(`/matches/${id}/step`, { article }).then(r => r.data);
+export const getRaceStatus   = (id)     => api.get(`/matches/${id}/status`).then(r => r.data);
+export const abandonRace     = (id)     => api.post(`/matches/${id}/abandon`).then(r => r.data);
 
 // Profile
 export const getMyProfile   = ()   => api.get('/profile/me').then(r => r.data);

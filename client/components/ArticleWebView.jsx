@@ -1,20 +1,49 @@
 // client/components/ArticleWebView.jsx
-import { useRef } from 'react';
+import { useRef, useCallback } from 'react';
 import { StyleSheet } from 'react-native';
 import { WebView } from 'react-native-webview';
 
+// Injected into every Wikipedia page to intercept link taps
 const INJECTED_JS = `
-  (function() {
-    document.addEventListener('click', function(e) {
-      var el = e.target.closest('a[data-article]');
-      if (!el) return;
+(function() {
+  // Hide Wikipedia chrome: header, footer, edit links, language links
+  var css = document.createElement('style');
+  css.textContent = [
+    'header, .header-container, footer, .mw-footer, .pre-content,' +
+    '.mw-editsection, .noprint, #mw-mf-page-left,' +
+    '.last-modified-bar, .post-content, .mw-cite-backlink,' +
+    '#page-actions, .minerva-footer, .menu,' +
+    '.page-actions-menu { display: none !important; }',
+    'a { color: #2563eb; }',
+  ].join('\\n');
+  document.head.appendChild(css);
+
+  // Intercept link clicks
+  document.addEventListener('click', function(e) {
+    var a = e.target.closest('a');
+    if (!a) return;
+    var href = a.getAttribute('href') || '';
+
+    // Internal wiki link: /wiki/Article_Name
+    if (href.startsWith('/wiki/') && !href.includes(':')) {
       e.preventDefault();
-      var article = el.getAttribute('data-article');
-      window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'LINK_TAP', article: article }));
-    }, true);
-  })();
-  true;
+      e.stopPropagation();
+      var title = decodeURIComponent(href.replace('/wiki/', '')).replace(/_/g, ' ');
+      window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'LINK_TAP', article: title }));
+      return;
+    }
+
+    // Block all other navigation (external links, special pages)
+    e.preventDefault();
+    e.stopPropagation();
+  }, true);
+})();
+true;
 `;
+
+function wikiUrl(title) {
+  return 'https://en.m.wikipedia.org/wiki/' + encodeURIComponent(title.replace(/ /g, '_'));
+}
 
 export function handleMessage(event, onLinkTap) {
   try {
@@ -25,35 +54,32 @@ export function handleMessage(event, onLinkTap) {
   } catch { /* ignore malformed messages */ }
 }
 
-export function ArticleWebView({ html, onLinkTap, style }) {
+export function ArticleWebView({ title, onLinkTap, onError, style }) {
   const webViewRef = useRef(null);
 
-  const fullHtml = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-          body { font-family: -apple-system, sans-serif; font-size: 16px; line-height: 1.6;
-                 padding: 12px; color: #111; max-width: 100%; }
-          a[data-article] { color: #2563eb; text-decoration: underline; }
-          img { max-width: 100%; height: auto; }
-          table { max-width: 100%; overflow-x: auto; display: block; }
-        </style>
-      </head>
-      <body>${html}</body>
-    </html>
-  `;
+  const onNavRequest = useCallback((req) => {
+    const url = req.url || '';
+    // Allow Wikipedia and Wikimedia domains (pages, CSS, JS, images)
+    if (url.includes('wikipedia.org') || url.includes('wikimedia.org')) return true;
+    if (url === 'about:blank') return true;
+    // Block external navigation
+    return false;
+  }, []);
+
+  if (!title) return null;
 
   return (
     <WebView
       ref={webViewRef}
       testID="article-webview"
-      originWhitelist={['*']}
-      source={{ html: fullHtml }}
+      source={{ uri: wikiUrl(title) }}
       injectedJavaScript={INJECTED_JS}
       onMessage={(e) => handleMessage(e, onLinkTap)}
+      onShouldStartLoadWithRequest={onNavRequest}
+      onError={onError}
+      onHttpError={onError}
       javaScriptEnabled
+      showsVerticalScrollIndicator
       style={[styles.webview, style]}
     />
   );

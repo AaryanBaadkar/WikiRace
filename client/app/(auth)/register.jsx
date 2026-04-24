@@ -1,6 +1,7 @@
 // client/app/(auth)/register.jsx
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -25,7 +26,7 @@ export default function RegisterScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Create Account</Text>
       <TextInput style={styles.input} placeholder="Username" value={username} onChangeText={setUsername} />
       <TextInput style={styles.input} placeholder="Email" autoCapitalize="none"
@@ -37,7 +38,7 @@ export default function RegisterScreen() {
       <TouchableOpacity onPress={() => router.back()}>
         <Text style={styles.link}>Already have an account? Log in</Text>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 

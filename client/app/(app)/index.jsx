@@ -21,6 +21,11 @@ export default function LobbyScreen() {
         <Text style={styles.primaryText}>Play vs Human</Text>
         <Text style={styles.secondaryText}>Create or join a match</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity style={styles.soloButton} onPress={() => router.push('/(app)/setup?mode=solo')}>
+        <Text style={styles.primaryText}>Solo Run</Text>
+        <Text style={styles.secondaryText}>Beat your own time</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -31,6 +36,7 @@ const styles = StyleSheet.create({
   subtitle:        { color: '#6b7280', marginBottom: 40, fontSize: 15 },
   primaryButton:   { backgroundColor: '#2563eb', borderRadius: 12, padding: 20, marginBottom: 16 },
   secondaryButton: { backgroundColor: '#1e3a5f', borderRadius: 12, padding: 20, marginBottom: 16 },
+  soloButton:      { backgroundColor: '#7c3aed', borderRadius: 12, padding: 20, marginBottom: 16 },
   primaryText:     { color: '#fff', fontSize: 18, fontWeight: '700' },
   secondaryText:   { color: 'rgba(255,255,255,0.7)', fontSize: 13, marginTop: 2 },
 });

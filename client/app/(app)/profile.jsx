@@ -60,7 +60,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container:     { flex: 1, backgroundColor: '#fff' },
   center:        { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  header:        { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20, paddingTop: 60 },
+  header:        { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 20 },
   username:      { fontSize: 24, fontWeight: 'bold' },
   logout:        { color: '#ef4444', fontWeight: '600' },
   statsRow:      { flexDirection: 'row', justifyContent: 'space-around', padding: 16, borderBottomWidth: 1, borderColor: '#f3f4f6' },

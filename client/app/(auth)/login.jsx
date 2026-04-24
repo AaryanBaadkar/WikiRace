@@ -1,6 +1,7 @@
 // client/app/(auth)/login.jsx
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -24,7 +25,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>WikiRace</Text>
       <Text style={styles.subtitle}>Race through Wikipedia</Text>
       <TextInput style={styles.input} placeholder="Email" autoCapitalize="none"
@@ -37,7 +38,7 @@ export default function LoginScreen() {
       <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
         <Text style={styles.link}>Don't have an account? Register</Text>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 

@@ -1,6 +1,9 @@
 // client/__tests__/useAuth.test.js
+import React from 'react';
 import { renderHook, act } from '@testing-library/react-native';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth, AuthProvider } from '../hooks/useAuth';
+
+const wrapper = ({ children }) => <AuthProvider>{children}</AuthProvider>;
 
 jest.mock('../services/api', () => ({
   login:    jest.fn(),
@@ -19,10 +22,12 @@ jest.mock('../services/socket', () => ({
 const mockApi = require('../services/api');
 
 describe('useAuth', () => {
-  it('starts unauthenticated', () => {
-    const { result } = renderHook(() => useAuth());
-    expect(result.current.user).toBeNull();
+  it('starts unauthenticated', async () => {
+    const { result } = renderHook(() => useAuth(), { wrapper });
     expect(result.current.isLoading).toBe(true);
+    await act(async () => {}); // flush getAccessToken() microtask
+    expect(result.current.user).toBeNull();
+    expect(result.current.isLoading).toBe(false);
   });
 
   it('sets user on successful login', async () => {
@@ -30,7 +35,7 @@ describe('useAuth', () => {
       accessToken: 'acc', refreshToken: 'ref',
       user: { id: '1', username: 'alice', email: 'alice@test.com' },
     });
-    const { result } = renderHook(() => useAuth());
+    const { result } = renderHook(() => useAuth(), { wrapper });
     await act(async () => {
       await result.current.login({ email: 'alice@test.com', password: 'pass' });
     });
@@ -38,7 +43,7 @@ describe('useAuth', () => {
   });
 
   it('clears user on logout', async () => {
-    const { result } = renderHook(() => useAuth());
+    const { result } = renderHook(() => useAuth(), { wrapper });
     await act(async () => { await result.current.logout(); });
     expect(result.current.user).toBeNull();
   });

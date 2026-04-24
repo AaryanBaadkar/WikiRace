@@ -1,6 +1,7 @@
 // client/app/(app)/matchmaking.jsx
 import { useEffect } from 'react';
 import { View, Text, ActivityIndicator, TouchableOpacity, StyleSheet, Share } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useMatch } from '../../hooks/useMatch';
 
@@ -17,7 +18,7 @@ export default function MatchmakingScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <ActivityIndicator size="large" color="#2563eb" style={styles.spinner} />
       <Text style={styles.title}>Waiting for opponent…</Text>
       {matchId && (
@@ -32,7 +33,7 @@ export default function MatchmakingScreen() {
       <TouchableOpacity style={styles.cancelButton} onPress={() => { abandonMatch(); router.back(); }}>
         <Text style={styles.cancelText}>Cancel</Text>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 

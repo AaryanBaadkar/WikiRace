@@ -7,11 +7,23 @@ let socket = null;
 
 export function connectSocket(accessToken) {
   if (socket?.connected) return socket;
+  // Disconnect stale/rejected socket before creating a new one
+  if (socket) {
+    socket.disconnect();
+    socket = null;
+  }
   socket = io(API_URL, {
     auth: { token: accessToken },
-    transports: ['websocket'],
+    transports: ['polling', 'websocket'],
     reconnection: true,
+    reconnectionAttempts: 10,
+    timeout: 5000,
   });
+  // Store userId on client socket so useMatch can identify own events
+  try {
+    const payload = JSON.parse(atob(accessToken.split('.')[1]));
+    socket.userId = payload.userId;
+  } catch { /* invalid token — userId will be undefined */ }
   return socket;
 }
 
